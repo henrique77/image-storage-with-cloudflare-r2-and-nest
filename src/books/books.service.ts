@@ -3,41 +3,76 @@ import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Book } from './entities/book.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
+import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { Upload } from '@aws-sdk/lib-storage';
+import { Images } from 'src/images/entities/image.entity';
 
 @Injectable()
 export class BooksService {
   constructor(
     @InjectRepository(Book)
     private bookRepository: Repository<Book>,
+    @InjectRepository(Images)
+    private imageRepository: Repository<Images>,
+    private dataSource: DataSource,
   ){}
 
-  async create(createBookDto: CreateBookDto) {
+  async create(
+    createBookDto: CreateBookDto,
+    imagens: Express.Multer.File[],
+    ) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
     try {
-      const book = await this.bookRepository
-        .createQueryBuilder()
-        .insert()
-        .into(Book)
-        .values({
-          title: createBookDto.title,
-          summary: createBookDto.summary,
-          author: createBookDto.author,
-          year: createBookDto.year,
-          status: createBookDto.status,
-        })
-        .execute();
+      const book = await queryRunner.manager.save(Book, {
+        title: createBookDto.title,
+        summary: createBookDto.summary,
+        author: createBookDto.author,
+        year: Number(createBookDto.year),
+        status: createBookDto.status,
+      });
 
-      const bookCreated = await this.bookRepository
+      if (!book) {
+        throw new HttpException('Livro não criado', HttpStatus.BAD_REQUEST);
+      }
+
+      if (imagens) {
+        await Promise.all(
+          imagens.map(async (imagem) => {
+            const { originalname, buffer } = imagem;
+            const nomeImagem = Date.now() + '-' + originalname.replace(/\s/g, '_');
+
+            const imageCriada = await queryRunner.manager.save(Images, {
+              name: nomeImagem,
+              url: 'https://pub-80e90dad79d647409945f766b3c3cbf6.r2.dev/images/' + nomeImagem ,
+              book: book,
+            });
+
+            if (!imageCriada) {
+              throw new HttpException('Imagem não criada', HttpStatus.BAD_REQUEST);
+            }
+
+            uploarImageR2(nomeImagem, imagem.mimetype, buffer);
+          }),
+        );
+      }
+
+      await queryRunner.commitTransaction();
+
+      const newBook = await this.bookRepository
         .createQueryBuilder('books')
-        .where('books.id = :id', { id: book.identifiers[0].id })
+        .leftJoinAndSelect('books.images', 'images')
+        .where('books.id = :id', {id: book.id})
         .getOne();
 
-      return bookCreated;
-    } catch (error) {
-      throw new HttpException(
-        'O livro não foi criado',
-        HttpStatus.BAD_REQUEST,
-      );
+      return newBook;
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw new HttpException(err, HttpStatus.BAD_REQUEST);
+    } finally {
+      await queryRunner.release();
     }
   }
 
@@ -45,6 +80,7 @@ export class BooksService {
     try {
       const books = await this.bookRepository
         .createQueryBuilder('books')
+        .leftJoinAndSelect('books.images', 'images')
         .getMany();
 
       if (books.length === 0) {
@@ -61,6 +97,7 @@ export class BooksService {
     try {
       const book = await this.bookRepository
         .createQueryBuilder('books')
+        .leftJoinAndSelect('books.images', 'images')
         .where('books.id = :id', {id: id})
         .getOne();
 
@@ -114,15 +151,32 @@ export class BooksService {
     }
   }
 
-  async remove(id: string) {
+  async delete(id: string) {
     try {
       const book = await this.bookRepository
         .createQueryBuilder('books')
+        .leftJoinAndSelect('books.images', 'images')
         .where('books.id = :id', {id: id})
         .getOne();
 
       if (!book) {
         throw new HttpException('Livro não encontrado!', HttpStatus.NO_CONTENT);
+      }
+
+      if (book.images && Array.isArray(book.images)) {
+        await Promise.all(
+          book.images.map(async (image) => {
+
+            await this.imageRepository
+            .createQueryBuilder()
+            .delete()
+            .from(Images)
+            .where("id = :id", { id: image.id })
+            .execute()
+
+            deleteImageR2(image.name);
+          }),
+        );
       }
 
       await this.bookRepository
@@ -139,3 +193,55 @@ export class BooksService {
     }
   }
 }
+
+async function uploarImageR2(
+  nomeImagem: string,
+  contentType: string,
+  buffer: Buffer,
+) {
+  const r2Client = new S3Client({
+    region: 'auto',
+    endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com/images`,
+    credentials: {
+      accessKeyId: process.env.R2_ACCESS_KEY_ID,
+      secretAccessKey: process.env.R2_SECRET_KEY_ID,
+    },
+  });
+
+  const upload = new Upload({
+    client: r2Client,
+    params: {
+      Bucket: process.env.R2_BUCKET_NAME,
+      Key: nomeImagem,
+      ContentType: contentType,
+      Body: buffer,
+    },
+  });
+
+  await upload.done();
+}
+
+async function deleteImageR2(nomeImagem: string) {
+  const r2Client = new S3Client({
+    region: 'auto',
+    endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com/images`,
+    credentials: {
+      accessKeyId: process.env.R2_ACCESS_KEY_ID,
+      secretAccessKey: process.env.R2_SECRET_KEY_ID,
+    },
+  });
+
+  const command = new DeleteObjectCommand({
+    Bucket: process.env.R2_BUCKET_NAME,
+    Key: nomeImagem,
+  });
+  await r2Client.send(command);
+}
+
+// function deleteImageLocal(nomeImagem: string) {
+//   const caminhoParaDeletar = path.join('./images/books', nomeImagem);
+
+//   if (fs.existsSync(caminhoParaDeletar)) {
+//     fs.unlinkSync(caminhoParaDeletar);
+//   }
+// }
