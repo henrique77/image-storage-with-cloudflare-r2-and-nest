@@ -10,7 +10,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity()
+@Entity({ name: 'images'})
 @Index(['id'])
 export class Images {
   @PrimaryGeneratedColumn('uuid')

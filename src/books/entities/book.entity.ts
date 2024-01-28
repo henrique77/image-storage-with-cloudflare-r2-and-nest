@@ -2,7 +2,7 @@ import { Images } from "src/images/entities/image.entity";
 import { Column, CreateDateColumn, Entity, Index, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity({ name: 'books'})
-@Index(['id', 'author'])
+@Index(['id'])
 export class Book {
     @PrimaryGeneratedColumn('uuid')
     id: string;

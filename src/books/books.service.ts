@@ -237,11 +237,3 @@ async function deleteImageR2(nomeImagem: string) {
   });
   await r2Client.send(command);
 }
-
-// function deleteImageLocal(nomeImagem: string) {
-//   const caminhoParaDeletar = path.join('./images/books', nomeImagem);
-
-//   if (fs.existsSync(caminhoParaDeletar)) {
-//     fs.unlinkSync(caminhoParaDeletar);
-//   }
-// }
