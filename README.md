@@ -1,73 +1,48 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# API NestJS + PostgreSQL + Docker + TypeORM + Cloudflare R2
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Este projeto é uma API desenvolvida utilizando o framework [NestJs](https://docs.nestjs.com/), conectada a um banco de dados [PostgreSQL](https://www.postgresql.org/docs/), executada em um ambiente [Docker](https://www.docker.com/) e usando o [TypeORM](https://typeorm.io/) para realização das consultas ao banco de dados. A API também integra-se com o [Cloudflare R2](https://developers.cloudflare.com/r2/) para armazenamento e gerenciamento de imagens. As imagens armazenadas no Cloudflare R2 pode ter sua url definida como pública posibilitando o acesso em qualquer navegador.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Pré-requisitos
 
-## Description
+Certifique-se de ter o seguinte instalado em sua máquina local:
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- [Docker](https://www.docker.com/)
+- [Docker Compose](https://docs.docker.com/compose/)
 
-## Installation
+## Execução do Projeto
 
-```bash
-$ npm install
+Copie o repositório para sua máquina local:
+
 ```
 
-## Running the app
+https://github.com/henrique77/image-storage-with-cloudflare-r2-and-nest.git
+```
+Crie um bucket no Cloudflare R2 para armazenar as imagens ([doc](https://developers.cloudflare.com/r2/buckets/)) e Gere um token de autenticação no Cloudflare para ser usado na API ([doc](https://developers.cloudflare.com/r2/api/s3/tokens/))
 
-```bash
-# development
-$ npm run start
+Crie um arquivo **.env** na raiz do projeto e adicione as variáveis de ambiente necessárias. Você pode usar **.env.example** como referência
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+Posteriormente a criação e inserção das informações necessárias no **.env**, execute:
 ```
 
-## Test
+docker compose up
+```
+Assim que os contêineres estiverem instalados e funcionando, podemos acessar o aplicativo NestJS visitando [http://localhost:3000](http://localhost:3000) e pgAdmin visitando [http://localhost:5050](http://localhost:5050) em nosso navegador.
+Faça login no pgAdmin usando o e-mail e a senha que especificamos no arquivo **docker-compose.yml** e Configurando o pgAdmin e o servidor PostgreSQL conforme as informações do arquivo **docker-compose.yml**
 
-```bash
-# unit tests
-$ npm run test
+Agora a API pode ser testada usando o [Postman](https://www.postman.com/) ou outra ferramenta de sua preferência.
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+As rotas disponiveis são:
 ```
 
-## Support
+POST: http://localhost:3000/books
+GET: http://localhost:3000/books
+GET: http://localhost:3000/books/ID_BOOK
+DELETE: http://localhost:3000/books/ID_BOOK
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
 
-## Stay in touch
+## For more information
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- Author - [Henrique Caires](https://www.linkedin.com/in/henrique-caires/)
 
-## License
-
-Nest is [MIT licensed](LICENSE).
+Open for questions or suggestions
