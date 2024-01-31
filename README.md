@@ -1,6 +1,6 @@
 # API NestJS + PostgreSQL + Docker + TypeORM + Cloudflare R2
 
-Este projeto é uma API desenvolvida utilizando o framework [NestJs](https://docs.nestjs.com/), conectada a um banco de dados [PostgreSQL](https://www.postgresql.org/docs/), executada em um ambiente [Docker](https://www.docker.com/) e usando o [TypeORM](https://typeorm.io/) para realização das consultas ao banco de dados. A API também integra-se com o [Cloudflare R2](https://developers.cloudflare.com/r2/) para armazenamento e gerenciamento de imagens. As imagens armazenadas no Cloudflare R2 pode ter sua url definida como pública posibilitando o acesso em qualquer navegador.
+Este projeto é uma API desenvolvida utilizando o framework [NestJs](https://docs.nestjs.com/), conectada a um banco de dados [PostgreSQL](https://www.postgresql.org/docs/), executada em um ambiente [Docker](https://www.docker.com/) e usando o [TypeORM](https://typeorm.io/) para realização das consultas ao banco de dados. A API também integra-se com o [Cloudflare R2](https://developers.cloudflare.com/r2/) para armazenamento e gerenciamento de imagens. 
 
 ## Pré-requisitos
 
@@ -31,7 +31,7 @@ Faça login no pgAdmin usando o e-mail e a senha que especificamos no arquivo **
 
 Agora a API pode ser testada usando o [Postman](https://www.postman.com/) ou outra ferramenta de sua preferência.
 
-As rotas disponiveis são:
+As rotas disponíveis são:
 ```
 
 POST: http://localhost:3000/books
@@ -40,6 +40,11 @@ GET: http://localhost:3000/books/ID_BOOK
 DELETE: http://localhost:3000/books/ID_BOOK
 ```
 
+As imagens armazenadas no Cloudflare R2 podem ter sua url [personalizada](https://developers.cloudflare.com/r2/buckets/public-buckets/#connect-a-bucket-to-a-custom-domain) e definida como [pública](https://developers.cloudflare.com/r2/buckets/public-buckets/) possibilitando o acesso em qualquer navegador.
+
+Exemplo de imagem que foi salva usando essa aplicação e que pode ser acessada pelo link:
+
+[https://pub-80e90dad79d647409945f766b3c3cbf6.r2.dev/images/1706739045335-clean_architecture.jpg](https://pub-80e90dad79d647409945f766b3c3cbf6.r2.dev/images/1706739045335-clean_architecture.jpg)
 
 ## For more information
 
