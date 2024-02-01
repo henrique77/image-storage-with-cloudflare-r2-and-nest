@@ -1,6 +1,6 @@
 # API NestJS + PostgreSQL + Docker + TypeORM + Cloudflare R2
 
-Este projeto é uma API desenvolvida utilizando o framework [NestJs](https://docs.nestjs.com/), conectada a um banco de dados [PostgreSQL](https://www.postgresql.org/docs/), executada em um ambiente [Docker](https://www.docker.com/) e usando o [TypeORM](https://typeorm.io/) para manipulação do banco de dados. A API também integra com o [Cloudflare R2](https://developers.cloudflare.com/r2/) para armazenamento e gerenciamento de imagens. 
+Este projeto é uma API desenvolvida utilizando o framework [NestJs](https://docs.nestjs.com/), conectada a um banco de dados [PostgreSQL](https://www.postgresql.org/docs/), executada em um ambiente [Docker](https://www.docker.com/) e usando o [TypeORM](https://typeorm.io/) para manipulação do banco de dados. A API também integra-se com o [Cloudflare R2](https://developers.cloudflare.com/r2/) para armazenamento e gerenciamento de imagens. 
 
 ## Pré-requisitos
 
